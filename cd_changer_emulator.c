@@ -68,11 +68,17 @@ typedef int bool;
  * https://github.com/festlv/screen-control/blob/master/Screen_control/melbus.cpp
  * http://forums.swedespeed.com/showthread.php?50450-VW-Phatbox-to-Volvo-Transplant-(How-To)&highlight=phatbox
  */
+/************************* OLD **************************/
+//const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
+//const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
+//const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
+//const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
+/************************* OLD **************************/
 
-const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
-const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
-const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
-const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
+const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
+const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
+const uint8_t MELBUS_DATA = 2; //GPIO 2  - Data
+const uint8_t MELBUS_BUSY = 3; //GPIO 2  - Busy
 
 volatile uint8_t melbus_ReceivedByte = 0;
 volatile uint8_t melbus_LastReadByte[8] = {0, 0, 0, 0 ,0, 0, 0, 0};
@@ -90,22 +96,22 @@ volatile bool Connected = FALSE;
 volatile bool testbool = FALSE;
 volatile bool AllowInterruptRead = TRUE;
 
-//Startup seequence
+//Startup sequence
 void setup() {
 
 	wiringPiSetupGpio();
 
 	//Data is deafult input high
-	pinMode(MELBUS_DATA, INPUT_PULLUP);
+	pinMode(MELBUS_DATA, PUD_UP);
 
 	//Activate interrupt on clock pin (INT1, D3)
 	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
 	//Set Clockpin-interrupt to input
-	pinMode(MELBUS_CLOCKBIT, INPUT_PULLUP);
+	pinMode(MELBUS_CLOCKBIT, PUD_UP);
 
 	//Initiate serial communication to debug via serial-usb (arduino)
-	Serial.begin(115200);
-	Serial.println("Initiating contact with Volvo-Melbus:");
+	//Serial.begin(115200);
+	//Serial.println("Initiating contact with Volvo-Melbus:");
 
 	//Call function that tells HU that we want to register a new device
 	melbus_Init_CDCHRG();
@@ -184,7 +190,7 @@ void loop() {
 //Notify HU that we want to trigger the first initiate procedure to add a new device (CD-CHGR) by pulling BUSY line low for 1s
 void melbus_Init_CDCHRG() {
 	//Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
-	EIMSK &= ~(1<<INT1);
+	//EIMSK &= ~(1<<INT1);
 
 	// Wait untill Busy-line goes high (not busy) before we pull BUSY low to request init
 	while(digitalRead(MELBUS_BUSY)==LOW){}
@@ -194,20 +200,20 @@ void melbus_Init_CDCHRG() {
 	digitalWrite(MELBUS_BUSY, LOW);
 	delay(1200);
 	digitalWrite(MELBUS_BUSY, HIGH);
-	pinMode(MELBUS_BUSY, INPUT_PULLUP);
+	pinMode(MELBUS_BUSY, PUD_UP);
 
 	//Enable interrupt on INT1, quicker then: attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
-	EIMSK |= (1<<INT1);
+	//EIMSK |= (1<<INT1);
 }
 
 //This is a function that sends a byte to the HU - (not using interrupts)
 void SendByteToMelbus(uint8_t byteToSend){
 	//Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
-	EIMSK &= ~(1<<INT1);
+	//EIMSK &= ~(1<<INT1);
 
 	//Convert datapin to output
 	//pinMode(MELBUS_DATA, OUTPUT); //To slow, use DDRD instead:
-	DDRD |= (1<<MELBUS_DATA);
+	//DDRD |= (1<<MELBUS_DATA);
 
 	//For each bit in the byte
 	for(int i=7;i>=0;i--)
@@ -215,24 +221,24 @@ void SendByteToMelbus(uint8_t byteToSend){
 		//If bit [i] is "1" - make datapin high
 		if(byteToSend & (1<<i)){
 			//digitalWrite(, HIGH); //To slow, use AVR-style instead:
-			PORTD |= (1<<MELBUS_DATA);
+			//PORTD |= (1<<MELBUS_DATA);
 		}
 		//if bit [i] is "0" - make databpin low
 		else{
-			PORTD &= ~(1<<MELBUS_DATA);
+			//PORTD &= ~(1<<MELBUS_DATA);
 		}
 		//dummyloop until clk goes low and then high again (I think HU is recording the value on datapin when clk goes back high again)
-		while(PIND & (1<<MELBUS_CLOCKBIT)){}
-		while(!(PIND & (1<<MELBUS_CLOCKBIT))){}
+		//while(PIND & (1<<MELBUS_CLOCKBIT)){}
+		//while(!(PIND & (1<<MELBUS_CLOCKBIT))){}
 		//while(digitalRead(MELBUS_CLOCKBIT)==HIGH){}
 		//while(digitalRead(MELBUS_CLOCKBIT)==LOW){}
 	}
 
 	//Reset datapin to high and return it to an input
-	pinMode(MELBUS_DATA, INPUT_PULLUP);
+	pinMode(MELBUS_DATA, PUD_UP);
 
 	//Enable interrupt on INT1, quicker then: attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
-	EIMSK |= (1<<INT1);
+	//EIMSK |= (1<<INT1);
 }
 
 //Global external interrupt that triggers when clock pin goes high after it has been low for a short time => time to read datapin
