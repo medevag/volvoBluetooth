@@ -28,8 +28,8 @@
 #include <wiringPi.h>
 
 typedef int bool;
-#define TRUE  1
-#define FALSE 0
+//#define TRUE  1
+//#define FALSE 0
 
 // // LED Pin - wiringPi pin 0 is BCM_GPIO 17.
 
