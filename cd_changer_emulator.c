@@ -33,7 +33,6 @@
 
 int main (void)
 {
-  printf ("Raspberry Pi blink\n") ;
 
   wiringPiSetupGpio () ;
   pinMode (LED, OUTPUT) ;
