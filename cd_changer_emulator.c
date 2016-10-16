@@ -88,7 +88,7 @@ volatile bool melbus_MasterRequestAccepted = FALSE;
 
 volatile bool Connected = FALSE;
 volatile bool testbool = FALSE;
-volatile bool AllowInterruptRead = true;
+volatile bool AllowInterruptRead = TRUE;
 
 //Startup seequence
 void setup() {
@@ -133,7 +133,7 @@ void loop() {
 		//Check if this is the very first initial sequence (07 1A EE ....)
 		if(melbus_LastReadByte[2] == 0x07 && melbus_LastReadByte[1] == 0x1A && melbus_LastReadByte[0] == 0xEE)
 		{
-			InitialSequence = true;
+			InitialSequence = TRUE;
 			Serial.println("Initiating CD-CHGR...");
 		}
 		//Now check if this is the car ignition startup sequence.
@@ -141,11 +141,11 @@ void loop() {
 		//This function is not necessary since the Arduino reconnects if not connected by calling the first init-procedure!
 		else if(melbus_LastReadByte[3] == 0x00 && melbus_LastReadByte[2] == 0x00 && melbus_LastReadByte[1] == 0x1C && melbus_LastReadByte[0] == 0xED){
 			Serial.println("Initiating ignition CD-CHGR...");
-			InitialSequence = true;
+			InitialSequence = TRUE;
 		}
 
 		//If this is the initial sequense and the HU is now asking if the CD-CHGR (0xE8) is prsent?
-		if(melbus_LastReadByte[0] == 0xE8 && InitialSequence == true){
+		if(melbus_LastReadByte[0] == 0xE8 && InitialSequence == TRUE){
 			InitialSequence = FALSE;
 
 			//Returning the expected byte to the HU, to confirm that the CD-CHGR is present (0xEE)! see "ID Response"-table here http://volvo.wot.lv/wiki/doku.php?id=melbus
@@ -158,7 +158,7 @@ void loop() {
 		//Check if the HU is asking for current track information (E9 1B E0 01 08 .......) - about once a second
 		//The HU is writing out CD ERROR if it wont get a response on this... the AUX works anyway!
 		else if(melbus_LastReadByte[4] == 0xE9 && melbus_LastReadByte[3] == 0x1B && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 ){
-			Connected = true;
+			Connected = TRUE;
 			Serial.println("\nTrack info requested!");
 			/* This is where you could request master mode and send the HU your cartridge and track info to display instead of "CD ERROR":
 			 * 1. Wait for Busy-pin to go high again (HU not currently using melbus)
@@ -255,8 +255,8 @@ void MELBUS_CLOCK_INTERRUPT() {
 		//Insert the newly read byte into first position of array
 		melbus_LastReadByte[0] = melbus_ReceivedByte;
 
-		//set bool to true to evaluate the bytes in main loop
-		ByteIsRead = true;
+		//set bool to TRUE to evaluate the bytes in main loop
+		ByteIsRead = TRUE;
 
 		//Reset bitcount to first bit in byte
 		melbus_Bitposition=7;
