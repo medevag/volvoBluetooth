@@ -26,7 +26,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <wiringPi.h>
-#include stdbool.h
+
+typedef int bool;
+#define TRUE  1
+#define FALSE 0
 
 // // LED Pin - wiringPi pin 0 is BCM_GPIO 17.
 
@@ -77,14 +80,14 @@ volatile uint8_t melbus_Bitposition = 7;
 uint8_t ByteToSend = 0;
 volatile long Counter = 0;
 
-volatile bool InitialSequence = false;
-volatile bool ByteIsRead = false;
-volatile bool sending_byte = false;
-volatile bool melbus_MasterRequested = false;
-volatile bool melbus_MasterRequestAccepted = false;
+volatile bool InitialSequence = FALSE;
+volatile bool ByteIsRead = FALSE;
+volatile bool sending_byte = FALSE;
+volatile bool melbus_MasterRequested = FALSE;
+volatile bool melbus_MasterRequestAccepted = FALSE;
 
-volatile bool Connected = false;
-volatile bool testbool = false;
+volatile bool Connected = FALSE;
+volatile bool testbool = FALSE;
 volatile bool AllowInterruptRead = true;
 
 //Startup seequence
@@ -113,15 +116,15 @@ void loop() {
 	//Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
 	if (ByteIsRead) {
 		//Reset bool to enable reading of next byte
-		ByteIsRead=false;
+		ByteIsRead=FALSE;
 
 		Counter++;
 		//If we failed to connect, reset and retry the init procedure
-		if(Counter>100 && Connected == false){
+		if(Counter>100 && Connected == FALSE){
 			Serial.print("\nRetrying to connect...\n");
 			Counter=0;
-			melbus_MasterRequested = false;
-			melbus_MasterRequestAccepted = false;
+			melbus_MasterRequested = FALSE;
+			melbus_MasterRequestAccepted = FALSE;
 			melbus_Init_CDCHRG();
 		}
 		if(Counter>100)
@@ -143,7 +146,7 @@ void loop() {
 
 		//If this is the initial sequense and the HU is now asking if the CD-CHGR (0xE8) is prsent?
 		if(melbus_LastReadByte[0] == 0xE8 && InitialSequence == true){
-			InitialSequence = false;
+			InitialSequence = FALSE;
 
 			//Returning the expected byte to the HU, to confirm that the CD-CHGR is present (0xEE)! see "ID Response"-table here http://volvo.wot.lv/wiki/doku.php?id=melbus
 			SendByteToMelbus(0xEE);
