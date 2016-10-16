@@ -23,9 +23,10 @@
  ***********************************************************************
  */
 
- #include <stdio.h>
+#include <stdio.h>
 #include <stdint.h>
- #include <wiringPi.h>
+#include <wiringPi.h>
+#include stdbool.h
 
 // // LED Pin - wiringPi pin 0 is BCM_GPIO 17.
 
@@ -65,10 +66,10 @@
  * http://forums.swedespeed.com/showthread.php?50450-VW-Phatbox-to-Volvo-Transplant-(How-To)&highlight=phatbox
  */
 
-const uint8 MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
-const uint8 MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
-const uint8 MELBUS_DATA = 4; //Pin D4  - Data
-const uint8 MELBUS_BUSY = 5; //Pin D5  - Busy
+const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
+const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
+const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
+const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
 
 volatile uint8_t melbus_ReceivedByte = 0;
 volatile uint8_t melbus_LastReadByte[8] = {0, 0, 0, 0 ,0, 0, 0, 0};
