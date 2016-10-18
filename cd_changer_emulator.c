@@ -193,7 +193,7 @@ void loop() {
 void melbus_Init_CDCHRG() {
 	//Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
 	//EIMSK &= ~(1<<INT1);
-	int tst = 0;
+	int tst = 1;
 	pinMode(MELBUS_BUSY, PUD_UP);
 	pinMode(MELBUS_BUSY, INPUT);
 	printf("Busy-wait");
