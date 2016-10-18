@@ -36,10 +36,10 @@ typedef int bool;
 
 // #define	LED	17
 
-// int main (void)
-// {
+ int main (void)
+ {
 
-//   wiringPiSetupGpio () ;
+   wiringPiSetupGpio () ;
 //   pinMode (LED, OUTPUT) ;
 
 //   for (;;)
@@ -50,7 +50,7 @@ typedef int bool;
 //     delay (1000) ;
 //   }
 //   return 0 ;
-// }
+ }
 //************************************************************************************************************************
 
 /* Melbus CDCHGR Emulator
