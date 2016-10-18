@@ -217,9 +217,9 @@ void SendByteToMelbus(uint8_t byteToSend){
 	//pinMode(MELBUS_DATA, OUTPUT); //To slow, use DDRD instead:
 	//DDRD |= (1<<MELBUS_DATA);
 
-	//For each bit in the byte
 	int i = 7;
-	for(i = 7; i>=0 ;i--)
+	//For each bit in the byte
+	while(i>=0)
 	{
 		//If bit [i] is "1" - make datapin high
 		if(byteToSend & (1<<i)){
@@ -235,6 +235,7 @@ void SendByteToMelbus(uint8_t byteToSend){
 		//while(!(PIND & (1<<MELBUS_CLOCKBIT))){}
 		//while(digitalRead(MELBUS_CLOCKBIT)==HIGH){}
 		//while(digitalRead(MELBUS_CLOCKBIT)==LOW){}
+		i--;
 	}
 
 	//Reset datapin to high and return it to an input
