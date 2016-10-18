@@ -218,7 +218,8 @@ void SendByteToMelbus(uint8_t byteToSend){
 	//DDRD |= (1<<MELBUS_DATA);
 
 	//For each bit in the byte
-	for(int i=7;i>=0;i--)
+	int i = 7;
+	for(i = 7; i>=0 ;i--)
 	{
 		//If bit [i] is "1" - make datapin high
 		if(byteToSend & (1<<i)){
