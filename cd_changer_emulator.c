@@ -63,12 +63,12 @@ int main(void) {
 	// Setup functions
 	wiringPiSetupGpio () ;
 	setup();
-
+	while(1){
 	//Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
-	if (ByteIsRead) {
+	if (1){//ByteIsRead) {
 		//Reset bool to enable reading of next byte
 		ByteIsRead=FALSE;
-
+		
 		Counter++;
 		//If we failed to connect, reset and retry the init procedure
 		if(Counter>100 && Connected == FALSE){
@@ -130,6 +130,7 @@ int main(void) {
 		melbus_Bitposition = 7;
 
 	}
+}
 }
 
 //Notify HU that we want to trigger the first initiate procedure to add a new device (CD-CHGR) by pulling BUSY line low for 1s
