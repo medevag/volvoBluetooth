@@ -51,7 +51,6 @@ typedef int bool;
 //   }
 //   return 0 ;
 // }
-
 //************************************************************************************************************************
 
 /* Melbus CDCHGR Emulator
@@ -95,6 +94,9 @@ volatile bool melbus_MasterRequestAccepted = FALSE;
 volatile bool Connected = FALSE;
 volatile bool testbool = FALSE;
 volatile bool AllowInterruptRead = TRUE;
+
+void melbus_Init_CDCHRG(void);
+void SendByteToMelbus(uint8_t byteToSend);
 
 //Startup sequence
 void setup() {
