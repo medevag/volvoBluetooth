@@ -72,17 +72,15 @@ void melbus_Init_CDCHRG(void);
 void SendByteToMelbus(uint8_t byteToSend);
 void setup(void);
 
-typedef int bool;
-//#define TRUE  1
-//#define FALSE 0
+typedef enum {false,true} bool;
 
  int main (void)
  {
 
    wiringPiSetupGpio () ;
-	setup();
-//   pinMode (LED, OUTPUT) ;
+   setup();
 
+//   pinMode (LED, OUTPUT) ;
 //   for (;;)
 //   {
 //     digitalWrite (LED, HIGH) ;	// On
@@ -99,7 +97,6 @@ typedef int bool;
 //const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
 //const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
 /************************* OLD **************************/
-
 
 //Startup sequence
 void setup() {
