@@ -105,9 +105,6 @@ void setup() {
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
 	printf("hejhej\n");
-	int i = 0;
-	while(i<10000){
-	}
 	while(1){
 		pinMode(MELBUS_DATA, PUD_DOWN);
 	}
