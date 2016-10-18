@@ -75,22 +75,22 @@ void SendByteToMelbus(uint8_t byteToSend);
 void setup(void);
 
 
- int main (void)
- {
+int main (void)
+{
 
-   wiringPiSetupGpio () ;
-   setup();
+	wiringPiSetupGpio () ;
+	setup();
 
-//   pinMode (LED, OUTPUT) ;
-//   for (;;)
-//   {
-//     digitalWrite (LED, HIGH) ;	// On
-//     delay (1000) ;		// mS
-//     digitalWrite (LED, LOW) ;	// Off
-//     delay (1000) ;
-//   }
-//   return 0 ;
- }
+	//   pinMode (LED, OUTPUT) ;
+	//   for (;;)
+	//   {
+	//     digitalWrite (LED, HIGH) ;	// On
+	//     delay (1000) ;		// mS
+	//     digitalWrite (LED, LOW) ;	// Off
+	//     delay (1000) ;
+	//   }
+	//   return 0 ;
+}
 
 /************************* OLD **************************/
 //const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
@@ -105,12 +105,16 @@ void setup() {
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
 	printf("hejhej\n");
+	int i = 0;
+	while(i<10000){
+	}
 	while(1){
+		pinMode(MELBUS_DATA, PUD_DOWN);
 	}
 	//Activate interrupt on clock pin (INT1, D3)
 	/** TODO
 	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
-	*/
+	 */
 	//Set Clockpin-interrupt to input
 	pinMode(MELBUS_CLOCKBIT, PUD_UP);
 
