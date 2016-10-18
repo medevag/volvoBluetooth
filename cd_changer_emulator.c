@@ -23,37 +23,8 @@
  ***********************************************************************
  */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <wiringPi.h>
-
-void setup(void);
-
-typedef int bool;
-//#define TRUE  1
-//#define FALSE 0
-
-// // LED Pin - wiringPi pin 0 is BCM_GPIO 17.
 
 
-// #define	LED	17
-
- int main (void)
- {
-
-   wiringPiSetupGpio () ;
-	setup();
-//   pinMode (LED, OUTPUT) ;
-
-//   for (;;)
-//   {
-//     digitalWrite (LED, HIGH) ;	// On
-//     delay (1000) ;		// mS
-//     digitalWrite (LED, LOW) ;	// Off
-//     delay (1000) ;
-//   }
-//   return 0 ;
- }
 //************************************************************************************************************************
 
 /* Melbus CDCHGR Emulator
@@ -70,12 +41,11 @@ typedef int bool;
  * https://github.com/festlv/screen-control/blob/master/Screen_control/melbus.cpp
  * http://forums.swedespeed.com/showthread.php?50450-VW-Phatbox-to-Volvo-Transplant-(How-To)&highlight=phatbox
  */
-/************************* OLD **************************/
-//const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
-//const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
-//const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
-//const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
-/************************* OLD **************************/
+
+
+#include <stdio.h>
+#include <stdint.h>
+#include <wiringPi.h>
 
 const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
@@ -100,11 +70,39 @@ volatile bool AllowInterruptRead = TRUE;
 
 void melbus_Init_CDCHRG(void);
 void SendByteToMelbus(uint8_t byteToSend);
+void setup(void);
+
+typedef int bool;
+//#define TRUE  1
+//#define FALSE 0
+
+ int main (void)
+ {
+
+   wiringPiSetupGpio () ;
+	setup();
+//   pinMode (LED, OUTPUT) ;
+
+//   for (;;)
+//   {
+//     digitalWrite (LED, HIGH) ;	// On
+//     delay (1000) ;		// mS
+//     digitalWrite (LED, LOW) ;	// Off
+//     delay (1000) ;
+//   }
+//   return 0 ;
+ }
+
+/************************* OLD **************************/
+//const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
+//const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
+//const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
+//const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
+/************************* OLD **************************/
+
 
 //Startup sequence
 void setup() {
-
-	wiringPiSetupGpio();
 
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
