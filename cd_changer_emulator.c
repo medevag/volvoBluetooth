@@ -200,7 +200,7 @@ void melbus_Init_CDCHRG() {
 	while(1){//digitalRead(MELBUS_BUSY)==LOW){
 		// Busy-wait
 		int tst = digitalRead(MELBUS_BUSY);
-		printf(""+tst);//"WAITING\n");
+		printf("Value: "+tst);//"WAITING\n");
 	}
 	printf("After\n");
 	delayMicroseconds(10);
