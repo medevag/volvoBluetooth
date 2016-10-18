@@ -59,7 +59,7 @@ typedef int bool;
 const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
 const uint8_t MELBUS_DATA = 2; //GPIO 2  - Data
-const uint8_t MELBUS_BUSY = 9; //GPIO 4  - Busy
+const uint8_t MELBUS_BUSY = 4; //GPIO 4  - Busy
 
 volatile uint8_t melbus_ReceivedByte = 0;
 volatile uint8_t melbus_LastReadByte[8] = {0, 0, 0, 0 ,0, 0, 0, 0};
@@ -194,12 +194,15 @@ void melbus_Init_CDCHRG() {
 	//Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
 	//EIMSK &= ~(1<<INT1);
 
+	pinMode(MELBUS_BUSY, PUD_DOWN);
 	pinMode(MELBUS_BUSY, INPUT);
 	printf("Busy-wait\n");
+	int tst = 7;
+	printf("%d",MELBUS_BUSY);
 	// Wait until Busy-line goes high (not busy) before we pull BUSY low to request init
 	while(1){//digitalRead(MELBUS_BUSY)==LOW){
 		// Busy-wait
-		int tst = digitalRead(MELBUS_BUSY);
+		tst = digitalRead(MELBUS_BUSY);
 		printf(""+tst);//"WAITING\n");
 	}
 	printf("After\n");
