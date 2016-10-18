@@ -129,7 +129,7 @@ void loop() {
 		Counter++;
 		//If we failed to connect, reset and retry the init procedure
 		if(Counter>100 && Connected == FALSE){
-			Serial.print("\nRetrying to connect...\n");
+			//Serial.print("\nRetrying to connect...\n");
 			Counter=0;
 			melbus_MasterRequested = FALSE;
 			melbus_MasterRequestAccepted = FALSE;
@@ -142,13 +142,13 @@ void loop() {
 		if(melbus_LastReadByte[2] == 0x07 && melbus_LastReadByte[1] == 0x1A && melbus_LastReadByte[0] == 0xEE)
 		{
 			InitialSequence = TRUE;
-			Serial.println("Initiating CD-CHGR...");
+			//Serial.println("Initiating CD-CHGR...");
 		}
 		//Now check if this is the car ignition startup sequence.
 		//The HU performes a check everytime the car starts, to evaluate if the initiated applications are still present: (00 00 1C ED ....)
 		//This function is not necessary since the Arduino reconnects if not connected by calling the first init-procedure!
 		else if(melbus_LastReadByte[3] == 0x00 && melbus_LastReadByte[2] == 0x00 && melbus_LastReadByte[1] == 0x1C && melbus_LastReadByte[0] == 0xED){
-			Serial.println("Initiating ignition CD-CHGR...");
+			//Serial.println("Initiating ignition CD-CHGR...");
 			InitialSequence = TRUE;
 		}
 
@@ -158,7 +158,7 @@ void loop() {
 
 			//Returning the expected byte to the HU, to confirm that the CD-CHGR is present (0xEE)! see "ID Response"-table here http://volvo.wot.lv/wiki/doku.php?id=melbus
 			SendByteToMelbus(0xEE);
-			Serial.println("\nConnected!");
+			//Serial.println("\nConnected!");
 			//Make sure the bit-counter is reset before we go back to reading bytes...
 			melbus_Bitposition=7;
 		}
@@ -167,7 +167,7 @@ void loop() {
 		//The HU is writing out CD ERROR if it wont get a response on this... the AUX works anyway!
 		else if(melbus_LastReadByte[4] == 0xE9 && melbus_LastReadByte[3] == 0x1B && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 ){
 			Connected = TRUE;
-			Serial.println("\nTrack info requested!");
+			//Serial.println("\nTrack info requested!");
 			/* This is where you could request master mode and send the HU your cartridge and track info to display instead of "CD ERROR":
 			 * 1. Wait for Busy-pin to go high again (HU not currently using melbus)
 			 * 2. Pull datapin low for 2ms
