@@ -257,8 +257,9 @@ void MELBUS_CLOCK_INTERRUPT() {
 
 	//if all the bits in the byte are read:
 	if (melbus_Bitposition==0) {
+		int i;
 		//Move every lastreadbyte one step down the array to keep track of former bytes
-		for(int i=7;i>0;i--){
+		for(i=7;i>0;i--){
 			melbus_LastReadByte[i] = melbus_LastReadByte[i-1];
 		}
 
