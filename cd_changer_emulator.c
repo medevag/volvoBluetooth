@@ -47,6 +47,11 @@
 #include <stdint.h>
 #include <wiringPi.h>
 
+typedef int bool;
+#define TRUE  1
+#define FALSE 0
+
+
 const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
 const uint8_t MELBUS_DATA = 2; //GPIO 2  - Data
@@ -72,7 +77,6 @@ void melbus_Init_CDCHRG(void);
 void SendByteToMelbus(uint8_t byteToSend);
 void setup(void);
 
-typedef enum {false,true} bool;
 
  int main (void)
  {
