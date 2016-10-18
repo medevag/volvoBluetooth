@@ -81,10 +81,10 @@ void melbus_Init_CDCHRG(void);
 void SendByteToMelbus(uint8_t byteToSend);
 void setup(void);
 
-int main (void)
-{
-	wiringPiSetupGpio () ;
-	setup();
+//int main (void)
+//{
+//
+//	setup();
 
 	//   pinMode (LED, OUTPUT) ;
 	//   for (;;)
@@ -95,7 +95,7 @@ int main (void)
 	//     delay (1000) ;
 	//   }
 	//   return 0 ;
-}
+//}
 
 //Startup sequence
 void setup() {
@@ -120,7 +120,8 @@ void setup() {
 }
 
 //Main loop
-void loop() {
+void main() {
+	wiringPiSetupGpio () ;
 	//Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
 	if (ByteIsRead) {
 		//Reset bool to enable reading of next byte
@@ -203,7 +204,7 @@ void melbus_Init_CDCHRG() {
 
 	pinMode(MELBUS_BUSY, OUTPUT);
 	digitalWrite(MELBUS_BUSY, LOW);
-	delay(15000);
+	delay(1200);
 	digitalWrite(MELBUS_BUSY, HIGH);
 	pinMode(MELBUS_BUSY, PUD_UP);
 
