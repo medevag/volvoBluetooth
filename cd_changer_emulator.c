@@ -199,7 +199,7 @@ void melbus_Init_CDCHRG() {
 	// Wait until Busy-line goes high (not busy) before we pull BUSY low to request init
 	while(1){//digitalRead(MELBUS_BUSY)==LOW){
 		// Busy-wait
-		printf(digitalRead(MELBUS_BUSY));//"WAITING\n");
+		printf((int)digitalRead(MELBUS_BUSY));//"WAITING\n");
 	}
 	printf("After\n");
 	delayMicroseconds(10);
