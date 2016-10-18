@@ -59,7 +59,7 @@ typedef int bool;
 const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
 const uint8_t MELBUS_DATA = 2; //GPIO 2  - Data
-const uint8_t MELBUS_BUSY = 4; //GPIO 4  - Busy
+const uint8_t MELBUS_BUSY = 9; //GPIO 4  - Busy
 
 volatile uint8_t melbus_ReceivedByte = 0;
 volatile uint8_t melbus_LastReadByte[8] = {0, 0, 0, 0 ,0, 0, 0, 0};
