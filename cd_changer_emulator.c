@@ -1,48 +1,3 @@
-/*
- * blink.c:
- *	Standard "blink" program in wiringPi. Blinks an LED connected
- *	to the first GPIO pin.
- *
- * Copyright (c) 2012-2013 Gordon Henderson. <projects@drogon.net>
- ***********************************************************************
- * This file is part of wiringPi:
- *	https://projects.drogon.net/raspberry-pi/wiringpi/
- *
- *    wiringPi is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU Lesser General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
- *
- *    wiringPi is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public License
- *    along with wiringPi.  If not, see <http://www.gnu.org/licenses/>.
- ***********************************************************************
- */
-
-
-
-//************************************************************************************************************************
-
-/* Melbus CDCHGR Emulator
- * Program that emulates the MELBUS communication from a CD-changer (CD-CHGR) in a Volvo V70 (HU-xxxx) to enable AUX-input through the 8-pin DIN-contact. 
- * Tis setup is using an Arduino Nano 5v clone
- * 
- * The HU enables the CD-CHGR in its source-menue after a successful initialization procedure is accomplished. 
- * The HU will remove the CD-CHGR everytime the car starts if it wont get an response from CD-CHGR (second init-procedure).
- * 
- * Karl Hagström 2015-11-04
- * 
- * This project went realy smooth thanks to these sources: 
- * http://volvo.wot.lv/wiki/doku.php?id=melbus
- * https://github.com/festlv/screen-control/blob/master/Screen_control/melbus.cpp
- * http://forums.swedespeed.com/showthread.php?50450-VW-Phatbox-to-Volvo-Transplant-(How-To)&highlight=phatbox
- */
-
-
 #include <stdio.h>
 #include <stdint.h>
 #include <wiringPi.h>
@@ -56,65 +11,48 @@ typedef int bool;
 //const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
 /************************* OLD **************************/
 
-const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
-const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
-const uint8_t MELBUS_DATA = 2; //GPIO 2  - Data
-const uint8_t MELBUS_BUSY = 4; //GPIO 4  - Busy
+const uint8_t MELBUS_CLOCKBIT_INT = 14; // GPIO 14 TXD
+const uint8_t MELBUS_CLOCKBIT = 7; // GPIO 7 - CLK
+const uint8_t MELBUS_DATA = 2; // GPIO 2  - Data
+const uint8_t MELBUS_BUSY = 4; // GPIO 4  - Busy
 
 volatile uint8_t melbus_ReceivedByte = 0;
 volatile uint8_t melbus_LastReadByte[8] = {0, 0, 0, 0 ,0, 0, 0, 0};
 volatile uint8_t melbus_Bitposition = 7;
-uint8_t ByteToSend = 0;
 volatile long Counter = 0;
+uint8_t ByteToSend = 0;
 
 volatile bool InitialSequence = FALSE;
 volatile bool ByteIsRead = FALSE;
 volatile bool sending_byte = FALSE;
 volatile bool melbus_MasterRequested = FALSE;
-volatile bool melbus_MasterRequestAccepted = FALSE;
-
+volatile bool melbus_MasterRequestAccepted = FALSE
 volatile bool Connected = FALSE;
 volatile bool testbool = FALSE;
 volatile bool AllowInterruptRead = TRUE;
 
+// Declaration of functions
+void setup(void);
+int main(void);
 void melbus_Init_CDCHRG(void);
 void SendByteToMelbus(uint8_t byteToSend);
-void setup(void);
-
-//int main (void)
-//{
-//
-//	setup();
-
-	//   pinMode (LED, OUTPUT) ;
-	//   for (;;)
-	//   {
-	//     digitalWrite (LED, HIGH) ;	// On
-	//     delay (1000) ;		// mS
-	//     digitalWrite (LED, LOW) ;	// Off
-	//     delay (1000) ;
-	//   }
-	//   return 0 ;
-//}
+void MELBUS_CLOCK_INTERRUPT(void);
 
 //Startup sequence
 void setup() {
 
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
-	printf("hejhej\n");
-	delay(15000);
-	pinMode(MELBUS_DATA, PUD_UP);
+//	pinMode(MELBUS_DATA, PUD_UP);
 	//Activate interrupt on clock pin (INT1, D3)
 	/** TODO
 	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
 	 */
+
 	//Set Clockpin-interrupt to input
 	pinMode(MELBUS_CLOCKBIT, PUD_UP);
 
-	//Initiate serial communication to debug via serial-usb (arduino)
-	//Serial.begin(115200);
-	//Serial.println("Initiating contact with Volvo-Melbus:");
+	printf("Requesting Volvo-Melbus:\n");
 
 	//Call function that tells HU that we want to register a new device
 	melbus_Init_CDCHRG();
@@ -122,8 +60,10 @@ void setup() {
 
 //Main loop
 int main(void) {
+	// Setup functions
 	wiringPiSetupGpio () ;
 	setup();
+
 	//Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
 	if (ByteIsRead) {
 		//Reset bool to enable reading of next byte
@@ -132,8 +72,8 @@ int main(void) {
 		Counter++;
 		//If we failed to connect, reset and retry the init procedure
 		if(Counter>100 && Connected == FALSE){
-			//Serial.print("\nRetrying to connect...\n");
-			Counter=0;
+			printf("Trying to reconnect...\n");
+			Counter = 0;
 			melbus_MasterRequested = FALSE;
 			melbus_MasterRequestAccepted = FALSE;
 			melbus_Init_CDCHRG();
@@ -212,6 +152,8 @@ void melbus_Init_CDCHRG() {
 
 	//Enable interrupt on INT1, quicker then: attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
 	//EIMSK |= (1<<INT1);
+
+	printf("Volvo-Melbus notified about requested initiation procedure\n");
 }
 
 //This is a function that sends a byte to the HU - (not using interrupts)
