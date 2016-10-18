@@ -27,6 +27,8 @@
 #include <stdint.h>
 #include <wiringPi.h>
 
+void setup(void);
+
 typedef int bool;
 //#define TRUE  1
 //#define FALSE 0
@@ -40,6 +42,7 @@ typedef int bool;
  {
 
    wiringPiSetupGpio () ;
+	setup();
 //   pinMode (LED, OUTPUT) ;
 
 //   for (;;)
@@ -105,7 +108,9 @@ void setup() {
 
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
-
+	printf("hejhej\n");
+	while(1){
+	}
 	//Activate interrupt on clock pin (INT1, D3)
 	/** TODO
 	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
