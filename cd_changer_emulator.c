@@ -193,23 +193,17 @@ void loop() {
 void melbus_Init_CDCHRG() {
 	//Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
 	//EIMSK &= ~(1<<INT1);
-	int tst = 1;
-	pinMode(MELBUS_BUSY, OUTPUT);
-	digitalWrite(MELBUS_BUSY, LOW);
-	//pinMode(MELBUS_BUSY, INPUT);
-	printf("Busy-wait\n");
-	delay(7000);
+
 	pinMode(MELBUS_BUSY, INPUT);
 	// Wait until Busy-line goes high (not busy) before we pull BUSY low to request init
 	while(digitalRead(MELBUS_BUSY)== LOW){
 		// Busy-wait
 	}
-	printf("After\n");
-	delayMicroseconds(10);
+	delay(10);
 
 	pinMode(MELBUS_BUSY, OUTPUT);
 	digitalWrite(MELBUS_BUSY, LOW);
-	delay(1200);
+	delay(15000);
 	digitalWrite(MELBUS_BUSY, HIGH);
 	pinMode(MELBUS_BUSY, PUD_UP);
 
