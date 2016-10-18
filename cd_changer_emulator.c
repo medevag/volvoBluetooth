@@ -105,7 +105,9 @@ void setup() {
 	pinMode(MELBUS_DATA, PUD_UP);
 
 	//Activate interrupt on clock pin (INT1, D3)
+	/** TODO
 	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
+	*/
 	//Set Clockpin-interrupt to input
 	pinMode(MELBUS_CLOCKBIT, PUD_UP);
 
