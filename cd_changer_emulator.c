@@ -48,9 +48,6 @@
 #include <wiringPi.h>
 
 typedef int bool;
-#define TRUE  1
-#define FALSE 0
-
 
 const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
