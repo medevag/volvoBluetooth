@@ -49,6 +49,13 @@
 
 typedef int bool;
 
+/************************* OLD **************************/
+//const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
+//const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
+//const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
+//const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
+/************************* OLD **************************/
+
 const uint8_t MELBUS_CLOCKBIT_INT = 14; //GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; //GPIO 7 - CLK
 const uint8_t MELBUS_DATA = 2; //GPIO 2  - Data
@@ -74,10 +81,8 @@ void melbus_Init_CDCHRG(void);
 void SendByteToMelbus(uint8_t byteToSend);
 void setup(void);
 
-
 int main (void)
 {
-
 	wiringPiSetupGpio () ;
 	setup();
 
@@ -92,22 +97,13 @@ int main (void)
 	//   return 0 ;
 }
 
-/************************* OLD **************************/
-//const uint8_t MELBUS_CLOCKBIT_INT = 1; //interrupt numer (INT1) on DDR3
-//const uint8_t MELBUS_CLOCKBIT = 3; //Pin D3 - CLK
-//const uint8_t MELBUS_DATA = 4; //Pin D4  - Data
-//const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
-/************************* OLD **************************/
-
 //Startup sequence
 void setup() {
 
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
 	printf("hejhej\n");
-	while(1){
-		pinMode(MELBUS_DATA, PUD_DOWN);
-	}
+	pinMode(MELBUS_DATA, PUD_UP);
 	//Activate interrupt on clock pin (INT1, D3)
 	/** TODO
 	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
@@ -198,8 +194,13 @@ void melbus_Init_CDCHRG() {
 	//Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
 	//EIMSK &= ~(1<<INT1);
 
+	printf("Busy-wait\n");
 	// Wait untill Busy-line goes high (not busy) before we pull BUSY low to request init
-	while(digitalRead(MELBUS_BUSY)==LOW){}
+	while(digitalRead(MELBUS_BUSY)==LOW){
+		// Busy-wait
+		printf("WAITING\n");
+	}
+	printf("After\n");
 	delayMicroseconds(10);
 
 	pinMode(MELBUS_BUSY, OUTPUT);
