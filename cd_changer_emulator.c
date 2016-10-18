@@ -123,6 +123,7 @@ void setup() {
 //Main loop
 int main(void) {
 	wiringPiSetupGpio () ;
+	setup();
 	//Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
 	if (ByteIsRead) {
 		//Reset bool to enable reading of next byte
