@@ -103,6 +103,7 @@ void setup() {
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
 	printf("hejhej\n");
+	delay(15000);
 	pinMode(MELBUS_DATA, PUD_UP);
 	//Activate interrupt on clock pin (INT1, D3)
 	/** TODO
