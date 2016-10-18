@@ -199,8 +199,8 @@ void melbus_Init_CDCHRG() {
 	// Wait until Busy-line goes high (not busy) before we pull BUSY low to request init
 	while(1){//digitalRead(MELBUS_BUSY)==LOW){
 		// Busy-wait
-		int tst = digitalRead(MELBUS_BUSY);
-		printf("Value: "+tst);//"WAITING\n");
+		int tst = wiringPi.digitalRead(MELBUS_BUSY);
+		printf(""+tst);//"WAITING\n");
 	}
 	printf("After\n");
 	delayMicroseconds(10);
