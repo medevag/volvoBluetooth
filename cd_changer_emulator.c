@@ -64,84 +64,86 @@ int main(void) {
 	// Setup functions
 	setup();
 
-	// Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
-	if(ByteIsRead)
-	{
-		// Reset bool to enable reading of next byte
-		ByteIsRead = FALSE;
-		Counter++;
-		// If we failed to connect, reset and retry the init procedure
-		if((Counter > 100) && (Connected == FALSE))
+	while(TRUE){
+		// Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
+		if(ByteIsRead)
 		{
-			printf("Trying to reconnect...\n");
-			Counter = 0;
-			melbus_MasterRequested = FALSE;
-			melbus_MasterRequestAccepted = FALSE;
-			melbus_Init_CDCHRG();
-		}
-		if(Counter>100)
-		{
-			Counter = 0;
+			// Reset bool to enable reading of next byte
+			ByteIsRead = FALSE;
+			Counter++;
+			// If we failed to connect, reset and retry the init procedure
+			if((Counter > 100) && (Connected == FALSE))
+			{
+				printf("Trying to reconnect...\n");
+				Counter = 0;
+				melbus_MasterRequested = FALSE;
+				melbus_MasterRequestAccepted = FALSE;
+				melbus_Init_CDCHRG();
+			}
+			if(Counter>100)
+			{
+				Counter = 0;
+			}
+
+			// Check if this is the very first initial sequence (07 1A EE ....)
+			if((melbus_LastReadByte[2] == 0x07) && (melbus_LastReadByte[1] == 0x1A)
+					&& (melbus_LastReadByte[0] == 0xEE))
+			{
+				InitialSequence = TRUE;
+				printf("Initiating CD-CHGR...\n");
+			}
+			// Now check if this is the car ignition startup sequence.
+			// The HU performes a check everytime the car starts, to evaluate if the initiated
+			// applications still are present: (00 00 1C ED ....)
+			// This function is not necessary since the Arduino
+			// reconnects if not connected by calling the first init-procedure!
+			else if((melbus_LastReadByte[3] == 0x00) && (melbus_LastReadByte[2] == 0x00)
+					&& (melbus_LastReadByte[1] == 0x1C) && (melbus_LastReadByte[0] == 0xED))
+			{
+				printf("Initiating ignition CD-CHGR...\n");
+				InitialSequence = TRUE;
+			}
+
+			// If this is the initial sequence and the HU is now asking if the CD-CHGR (0xE8) is present?
+			if((melbus_LastReadByte[0] == 0xE8) && (InitialSequence == TRUE))
+			{
+				InitialSequence = FALSE;
+
+				// Returning the expected byte to the HU, to confirm that the CD-CHGR is present
+				// (0xEE)! see "ID Response" - table here http://volvo.wot.lv/wiki/doku.php?id=melbus
+				SendByteToMelbus(0xEE);
+				printf("Connected!\n");
+				// Make sure the bit-counter is reset before we go back to reading bytes...
+				melbus_Bitposition = 7;
+			}
+
+			//Check if the HU is asking for current track information (E9 1B E0 01 08 .......) - about once a second
+			//The HU is writing out CD ERROR if it wont get a response on this... the AUX works anyway!
+			else if((melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B)
+					&& (melbus_LastReadByte[2] == 0xE0)  && (melbus_LastReadByte[1] == 0x01)
+					&& (melbus_LastReadByte[0] == 0x08))
+			{
+				Connected = TRUE;
+				printf("Track info requested!\n");
+				/* This is where you could request master mode and send the HU your cartridge and track info to display instead of "CD ERROR":
+				 * 1. Wait for Busy-pin to go high again (HU not currently using melbus)
+				 * 2. Pull datapin low for 2ms
+				 * 3. listen for the "Master request broadcast" and then respond to your address followed by 8 bits (track info)
+				 *  see http://volvo.wot.lv/wiki/doku.php?id=melbus for further info
+				 *
+				 *  For some reson I didn't get the HU to send out the Master request broadcast...
+				 *  I gave up since I don't care that the display sais CD Error (legit message since my smartphone lacks a CD!)
+				 */
+			}
 		}
 
-		// Check if this is the very first initial sequence (07 1A EE ....)
-		if((melbus_LastReadByte[2] == 0x07) && (melbus_LastReadByte[1] == 0x1A)
-				&& (melbus_LastReadByte[0] == 0xEE))
+		//If BUSYPIN is HIGH => HU is in between transmissions
+		if (digitalRead(MELBUS_BUSY) == HIGH)
 		{
-			InitialSequence = TRUE;
-			printf("Initiating CD-CHGR...\n");
-		}
-		// Now check if this is the car ignition startup sequence.
-		// The HU performes a check everytime the car starts, to evaluate if the initiated
-		// applications still are present: (00 00 1C ED ....)
-		// This function is not necessary since the Arduino
-		// reconnects if not connected by calling the first init-procedure!
-		else if((melbus_LastReadByte[3] == 0x00) && (melbus_LastReadByte[2] == 0x00)
-				&& (melbus_LastReadByte[1] == 0x1C) && (melbus_LastReadByte[0] == 0xED))
-		{
-			printf("Initiating ignition CD-CHGR...\n");
-			InitialSequence = TRUE;
-		}
-
-		// If this is the initial sequence and the HU is now asking if the CD-CHGR (0xE8) is present?
-		if((melbus_LastReadByte[0] == 0xE8) && (InitialSequence == TRUE))
-		{
-			InitialSequence = FALSE;
-
-			// Returning the expected byte to the HU, to confirm that the CD-CHGR is present
-			// (0xEE)! see "ID Response" - table here http://volvo.wot.lv/wiki/doku.php?id=melbus
-			SendByteToMelbus(0xEE);
-			printf("Connected!\n");
-			// Make sure the bit-counter is reset before we go back to reading bytes...
+			//Make sure we are in sync when reading the bits by resetting the clock reader
 			melbus_Bitposition = 7;
+
 		}
-
-		//Check if the HU is asking for current track information (E9 1B E0 01 08 .......) - about once a second
-		//The HU is writing out CD ERROR if it wont get a response on this... the AUX works anyway!
-		else if((melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B)
-				&& (melbus_LastReadByte[2] == 0xE0)  && (melbus_LastReadByte[1] == 0x01)
-				&& (melbus_LastReadByte[0] == 0x08))
-		{
-			Connected = TRUE;
-			printf("Track info requested!\n");
-			/* This is where you could request master mode and send the HU your cartridge and track info to display instead of "CD ERROR":
-			 * 1. Wait for Busy-pin to go high again (HU not currently using melbus)
-			 * 2. Pull datapin low for 2ms
-			 * 3. listen for the "Master request broadcast" and then respond to your address followed by 8 bits (track info)
-			 *  see http://volvo.wot.lv/wiki/doku.php?id=melbus for further info
-			 *
-			 *  For some reson I didn't get the HU to send out the Master request broadcast...
-			 *  I gave up since I don't care that the display sais CD Error (legit message since my smartphone lacks a CD!)
-			 */
-		}
-	}
-
-	//If BUSYPIN is HIGH => HU is in between transmissions
-	if (digitalRead(MELBUS_BUSY) == HIGH)
-	{
-		//Make sure we are in sync when reading the bits by resetting the clock reader
-		melbus_Bitposition = 7;
-
 	}
 }
 
@@ -223,6 +225,7 @@ void SendByteToMelbus(uint8_t byteToSend){
  */
 void MELBUS_CLOCK_INTERRUPT() {
 	// Read status of Datapin and set status of current bit in recv_byte
+	printf("Interrupt\n");
 	if (digitalRead(MELBUS_DATA)==HIGH)
 	{
 		melbus_ReceivedByte |= (1<<melbus_Bitposition); // Set bit nr [melbus_Bitposition] to "1"
