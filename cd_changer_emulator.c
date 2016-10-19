@@ -40,20 +40,22 @@ void MELBUS_CLOCK_INTERRUPT(void);
 
 //Startup sequence
 void setup() {
+	// Setup wiringPi
+	wiringPiSetupGpio () ;
 
 	//Data is deafult input high
 	pinMode(MELBUS_DATA, PUD_UP);
 //	pinMode(MELBUS_DATA, PUD_UP);
+
 	//Activate interrupt on clock pin (INT1, D3)
-	/** TODO
-	attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
-	 */
+	// ARDUINO attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
+	// Raspberry
+	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_RISING,MELBUS_CLOCK_INTERRUPT);
 
 	//Set Clockpin-interrupt to input
 	pinMode(MELBUS_CLOCKBIT, PUD_UP);
 
 	printf("Requesting Volvo-Melbus:\n");
-
 	//Call function that tells HU that we want to register a new device
 	melbus_Init_CDCHRG();
 }
@@ -61,11 +63,10 @@ void setup() {
 //Main loop
 int main(void) {
 	// Setup functions
-	wiringPiSetupGpio () ;
 	setup();
-	while(1){
+
 	//Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
-	if (1){//ByteIsRead) {
+	if (ByteIsRead) {
 		//Reset bool to enable reading of next byte
 		ByteIsRead=FALSE;
 		
@@ -130,7 +131,6 @@ int main(void) {
 		melbus_Bitposition = 7;
 
 	}
-}
 }
 
 //Notify HU that we want to trigger the first initiate procedure to add a new device (CD-CHGR) by pulling BUSY line low for 1s
