@@ -46,12 +46,9 @@ void setup() {
 	wiringPiSetupGpio () ;
 
 	// Data is deafult input high
-	//pinMode(MELBUS_DATA, INPUT);
-	//pullUpDnControl (MELBUS_DATA, PUD_DOWN);
-	pinMode(MELBUS_DATA, OUTPUT);
-	digitalWrite(MELBUS_DATA, LOW);
+	pinMode(MELBUS_DATA, INPUT);
+	pullUpDnControl (MELBUS_DATA, PUD_DOWN);
 
-	//	pinMode(MELBUS_DATA, PUD_UP);
 
 	// Activate interrupt on clock pin (
 //	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_RISING, MELBUS_CLOCK_INTERRUPT);
@@ -59,7 +56,6 @@ void setup() {
 	// Set Clockpin-interrupt to input
 	pinMode(MELBUS_CLOCKBIT_INT, INPUT);
 	pullUpDnControl (MELBUS_CLOCKBIT_INT, PUD_DOWN);
-
 
 	printf("Requesting Volvo-Melbus:\n");
 	// Call function that tells HU that we want to register a new device
