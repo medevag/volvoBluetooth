@@ -173,7 +173,7 @@ void melbus_Init_CDCHRG() {
 
 	// Enable interrupt on INT1, quicker then: attachInterrupt(MELBUS_CLOCKBIT_INT, MELBUS_CLOCK_INTERRUPT, RISING);
 	//EIMSK |= (1<<INT1);
-	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_RISING, MELBUS_CLOCK_INTERRUPT);
+	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_FALLING, MELBUS_CLOCK_INTERRUPT);
 
 	printf("Volvo-Melbus notified about requested initiation procedure\n");
 }
