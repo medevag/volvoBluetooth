@@ -252,6 +252,7 @@ void MELBUS_CLOCK_INTERRUPT() {
 
 		// Insert the newly read byte into first position of array
 		melbus_LastReadByte[0] = melbus_ReceivedByte;
+		printf("Byte %d\n", melbus_ReceivedByte);
 
 		// Set bool to TRUE to evaluate the bytes in main loop
 		ByteIsRead = TRUE;
