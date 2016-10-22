@@ -46,8 +46,10 @@ void setup() {
 	wiringPiSetupGpio () ;
 
 	// Data is deafult input high
-	pinMode(MELBUS_DATA, INPUT);
-	pullUpDnControl (MELBUS_DATA, PUD_DOWN);
+	//pinMode(MELBUS_DATA, INPUT);
+	//pullUpDnControl (MELBUS_DATA, PUD_DOWN);
+	pinMode(MELBUS_DATA, OUTPUT);
+	digitalWrite(MELBUS_DATA, LOW);
 
 	//	pinMode(MELBUS_DATA, PUD_UP);
 
