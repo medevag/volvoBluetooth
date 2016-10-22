@@ -46,7 +46,7 @@ void setup() {
 	wiringPiSetupGpio () ;
 
 	// Data is deafult input high
-	pullUpDnControl (MELBUS_DATA, PUD_UP);
+	pullUpDnControl (MELBUS_DATA, PUD_DOWN);
 	pinMode(MELBUS_DATA, INPUT);
 	//	pinMode(MELBUS_DATA, PUD_UP);
 
@@ -54,7 +54,7 @@ void setup() {
 //	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_RISING, MELBUS_CLOCK_INTERRUPT);
 
 	// Set Clockpin-interrupt to input
-	pullUpDnControl (MELBUS_CLOCKBIT_INT, PUD_UP);
+	pullUpDnControl (MELBUS_CLOCKBIT_INT, PUD_DOWN);
 	pinMode(MELBUS_CLOCKBIT_INT, INPUT);
 
 	printf("Requesting Volvo-Melbus:\n");
