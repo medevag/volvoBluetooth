@@ -167,7 +167,7 @@ void melbus_Init_CDCHRG() {
 
 	pinMode(MELBUS_BUSY, OUTPUT);
 	digitalWrite(MELBUS_BUSY, LOW);
-	delay(1200);
+	delay(1000);
 	digitalWrite(MELBUS_BUSY, HIGH);
 	pinMode(MELBUS_BUSY, PUD_UP);
 
