@@ -11,14 +11,14 @@ typedef int bool;
 //const uint8_t MELBUS_BUSY = 5; //Pin D5  - Busy
 /************************* OLD **************************/
 
-const uint8_t MELBUS_CLOCKBIT_INT = 14; // GPIO 14 TXD
+const uint8_t MELBUS_CLOCKBIT_INT = 10; // GPIO 14 TXD
 const uint8_t MELBUS_CLOCKBIT = 7; // GPIO 7 - CLK
 const uint8_t MELBUS_DATA = 2; // GPIO 2  - Data
 const uint8_t MELBUS_BUSY = 4; // GPIO 4  - Busy
 
 volatile uint8_t melbus_ReceivedByte = 0;
 volatile uint8_t melbus_LastReadByte[8] = {0, 0, 0, 0 ,0, 0, 0, 0};
-volatile uint8_t melbus_Bitposition = 7;
+uint8_t melbus_Bitposition = 7;
 volatile long Counter = 0;
 uint8_t ByteToSend = 0;
 
@@ -46,14 +46,14 @@ void setup() {
 	wiringPiSetupGpio () ;
 
 	// Data is deafult input high
-	pinMode(MELBUS_DATA, PUD_UP);
+	pinMode(MELBUS_DATA, INPUT);
 	//	pinMode(MELBUS_DATA, PUD_UP);
 
 	// Activate interrupt on clock pin (
-	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_RISING, MELBUS_CLOCK_INTERRUPT);
+//	wiringPiISR (MELBUS_CLOCKBIT_INT, INT_EDGE_RISING, MELBUS_CLOCK_INTERRUPT);
 
 	// Set Clockpin-interrupt to input
-	pinMode(MELBUS_CLOCKBIT, PUD_UP);
+	pinMode(MELBUS_CLOCKBIT, INPUT);
 
 	printf("Requesting Volvo-Melbus:\n");
 	// Call function that tells HU that we want to register a new device
@@ -63,11 +63,13 @@ void setup() {
 int main(void) {
 	// Setup functions
 	setup();
-
-	while(TRUE){
+while(TRUE){
+	while(!ByteIsRead){}
+	//printf("While true\n");
 		// Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
 		if(ByteIsRead)
 		{
+			printf("Byte is read\n");
 			// Reset bool to enable reading of next byte
 			ByteIsRead = FALSE;
 			Counter++;
@@ -105,7 +107,7 @@ int main(void) {
 			}
 
 			// If this is the initial sequence and the HU is now asking if the CD-CHGR (0xE8) is present?
-			if((melbus_LastReadByte[0] == 0xE8) && (InitialSequence == TRUE))
+			if((melbus_LastReadByte[0] == 0x8/*0xE8*/) && (InitialSequence == TRUE))
 			{
 				InitialSequence = FALSE;
 
@@ -153,7 +155,7 @@ int main(void) {
 void melbus_Init_CDCHRG() {
 	// Disable interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
 	// EIMSK &= ~(1<<INT1);
-	pinMode(MELBUS_CLOCKBIT_INT, OUTPUT);
+//	pinMode(MELBUS_CLOCKBIT_INT, OUTPUT);
 
 	pinMode(MELBUS_BUSY, INPUT);
 
@@ -228,16 +230,19 @@ void MELBUS_CLOCK_INTERRUPT() {
 	printf("Interrupt\n");
 	if (digitalRead(MELBUS_DATA)==HIGH)
 	{
+		printf("High\n");
 		melbus_ReceivedByte |= (1<<melbus_Bitposition); // Set bit nr [melbus_Bitposition] to "1"
 	}
 	else
 	{
+		printf("Low\n");
 		melbus_ReceivedByte &=~(1<<melbus_Bitposition); // Set bit nr [melbus_Bitposition] to "0"
 	}
 
 	// If all the bits in the byte are read:
-	if (melbus_Bitposition==0)
+	if (melbus_Bitposition == 0)
 	{
+		printf("all read\n");
 		int i = 7;
 		// Move every lastreadbyte one step down the array to keep track of former bytes
 		for(i = 7; i > 0; i--)
@@ -258,5 +263,6 @@ void MELBUS_CLOCK_INTERRUPT() {
 	{
 		// Set bitnumber to address of next bit in byte
 		melbus_Bitposition--;
+		printf("Counter %d\n", melbus_Bitposition);
 	}
 }
