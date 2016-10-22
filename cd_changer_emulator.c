@@ -47,7 +47,7 @@ void setup() {
 
 	// Data is deafult input high
 	pullUpDnControl (MELBUS_DATA, PUD_DOWN);
-	pinMode(MELBUS_DATA, INPUT);
+	//pinMode(MELBUS_DATA, INPUT);
 	//	pinMode(MELBUS_DATA, PUD_UP);
 
 	// Activate interrupt on clock pin (
