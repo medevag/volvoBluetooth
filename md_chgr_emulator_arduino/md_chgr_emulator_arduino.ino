@@ -65,139 +65,68 @@ void setup() {
 //Main loop
 void loop() {
   //Waiting for the clock interrupt to trigger 8 times to read one byte before evaluating the data
-#ifdef SERDBG
-  if (ByteIsRead) {
-    //Reset bool to enable reading of next byte
-    ByteIsRead=false;
-
-
-
-
-    if (incomingByte == ' ') {
-    /*if(melbus_LastReadByte[11] == 0x0 && (melbus_LastReadByte[10] == 0x4A || melbus_LastReadByte[10] == 0x4C || melbus_LastReadByte[10] == 0x4E) && melbus_LastReadByte[9] == 0xEC && melbus_LastReadByte[8] == 0x57 && melbus_LastReadByte[7] == 0x57 && melbus_LastReadByte[6] == 0x49 && melbus_LastReadByte[5] == 0x52 && melbus_LastReadByte[4] == 0xAF && melbus_LastReadByte[3] == 0xE0 && melbus_LastReadByte[2] == 0x0)
+  #ifdef SERDBG
+    if (ByteIsRead) {
+      //Reset bool to enable reading of next byte
+      ByteIsRead=false;
+  
+      if (incomingByte == ' ') {
+  
+        if (melbus_CharBytes) {
+          Serial.write(melbus_LastReadByte[1]);
+          melbus_CharBytes--;
+        }
+        else 
+        {
+          Serial.print(melbus_LastReadByte[1],HEX);
+          Serial.write(' ');
+        }
+      }
+    }
+  #endif
+  
+  
+    //If BUSYPIN is HIGH => HU is in between transmissions
+    if (digitalRead(MELBUS_BUSY)==HIGH) 
     {
-      melbus_CharBytes=8; //print RDS station name
+      //Make sure we are in sync when reading the bits by resetting the clock reader
+  
+  #ifdef SERDBG
+      if (melbus_Bitposition != 0x80) {
+        Serial.println(melbus_Bitposition,HEX);
+        Serial.println("\n not in sync! ");
+      }
+  #endif
+    if (incomingByte != 'k') {
+      melbus_Bitposition = 0x80;
+      melbus_OutByte = 0xFF;
+      melbus_SendCnt=0;
+      melbus_DiscCnt=0;
+      DDRD &= ~(1<<MELBUS_DATA);
+      PORTD |= (1<<MELBUS_DATA);
     }
-
-    if(melbus_LastReadByte[1] == 0x0 && melbus_LastReadByte[0] == 0x4A)
+  
+    }  
+  #ifdef SERDBG
+    if (Serial.available() > 0) {
+                  // read the incoming byte:
+                  incomingByte = Serial.read();
+  
+  
+    }
+    if (incomingByte == 'i') {
+                   melbus_Init_CDCHRG();
+                   Serial.println("\n forced init: ");
+                   incomingByte=0;
+  
+    }
+  #endif
+    if ((melbus_Bitposition == 0x80) && (PIND & (1<<MELBUS_CLOCKBIT)))
     {
-      Serial.println("\n LCD is master: (no CD init)");
-    }
-    else if(melbus_LastReadByte[1] == 0x0 && melbus_LastReadByte[0] == 0x4C)
-    {
-      Serial.println("\n LCD is master: (???)");
-    }
-    else if(melbus_LastReadByte[1] == 0x0 && melbus_LastReadByte[0] == 0x4E)
-    {
-      Serial.println("\n LCD is master: (with CD init)");
-    }
-    else if(melbus_LastReadByte[1] == 0x80 && melbus_LastReadByte[0] == 0x4E)
-    {
-      Serial.println("\n ???");
-    }
-    else if(melbus_LastReadByte[1] == 0xE8 && melbus_LastReadByte[0] == 0x4E)
-    {
-      Serial.println("\n ???");
-    }
-    else if(melbus_LastReadByte[1] == 0xF9 && melbus_LastReadByte[0] == 0x49)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0x80 && melbus_LastReadByte[0] == 0x49)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0xE8 && melbus_LastReadByte[0] == 0x49)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0xE9 && melbus_LastReadByte[0] == 0x4B)
-    {
-      Serial.println("\n HU  is master: -> CDC");
-    }
-    else if(melbus_LastReadByte[1] == 0x81 && melbus_LastReadByte[0] == 0x4B)
-    {
-      Serial.println("\n HU  is master: -> CDP");
-    }
-    else if(melbus_LastReadByte[1] == 0xF9 && melbus_LastReadByte[0] == 0x4E)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x4E)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x4C)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x4A)
-    {
-      Serial.println("\n HU  is master: ");
-    }
-    else if(melbus_LastReadByte[1] == 0xF8 && melbus_LastReadByte[0] == 0x4C)
-    {
-      Serial.println("\n HU  is master: ");
-    }*/
-
-    if (melbus_CharBytes) {
-      Serial.write(melbus_LastReadByte[1]);
-      melbus_CharBytes--;
-    }else 
-    {
-      Serial.print(melbus_LastReadByte[1],HEX);
-      Serial.write(' ');
-    }
-    }
-
-
-  }
-#endif
-
-
-
-  //If BUSYPIN is HIGH => HU is in between transmissions
-  if (digitalRead(MELBUS_BUSY)==HIGH) 
-  {
-    //Make sure we are in sync when reading the bits by resetting the clock reader
-
-#ifdef SERDBG
-    if (melbus_Bitposition != 0x80) {
-      Serial.println(melbus_Bitposition,HEX);
-      Serial.println("\n not in sync! ");
-    }
-#endif
-  if (incomingByte != 'k') {
-    melbus_Bitposition = 0x80;
-    melbus_OutByte = 0xFF;
-    melbus_SendCnt=0;
-    melbus_DiscCnt=0;
+    delayMicroseconds(7);
     DDRD &= ~(1<<MELBUS_DATA);
     PORTD |= (1<<MELBUS_DATA);
-  }
-
-  }  
-#ifdef SERDBG
-  if (Serial.available() > 0) {
-                // read the incoming byte:
-                incomingByte = Serial.read();
-
-
-  }
-  if (incomingByte == 'i') {
-                 melbus_Init_CDCHRG();
-                 Serial.println("\n forced init: ");
-                 incomingByte=0;
-
-  }
-#endif
-  if ((melbus_Bitposition == 0x80) && (PIND & (1<<MELBUS_CLOCKBIT)))
-  {
-  delayMicroseconds(7);
-  DDRD &= ~(1<<MELBUS_DATA);
-  PORTD |= (1<<MELBUS_DATA);
-  }
-
+    }
 }
 
 //Notify HU that we want to trigger the first initiate procedure to add a new device (CD-CHGR) by pulling BUSY line low for 1s
@@ -205,7 +134,7 @@ void melbus_Init_CDCHRG() {
   //Disabel interrupt on INT1 quicker then: detachInterrupt(MELBUS_CLOCKBIT_INT);
   EIMSK &= ~(1<<INT1); 
   
- // Wait untill Busy-line goes high (not busy) before we pull BUSY low to request init
+  // Wait untill Busy-line goes high (not busy) before we pull BUSY low to request init
   while(digitalRead(MELBUS_BUSY)==LOW){} 
   delayMicroseconds(10);
   
@@ -221,73 +150,85 @@ void melbus_Init_CDCHRG() {
 
 
 
-
 //Global external interrupt that triggers when clock pin goes high after it has been low for a short time => time to read datapin
 void MELBUS_CLOCK_INTERRUPT() {
 
     //Read status of Datapin and set status of current bit in recv_byte
       
-      if(melbus_OutByte & melbus_Bitposition){
+      if(melbus_OutByte & melbus_Bitposition)
+      {
          DDRD &= (~(1<<MELBUS_DATA));
          PORTD |= (1<<MELBUS_DATA);
       }
       //if bit [i] is "0" - make databpin low
-      else{
+      else
+      {
          PORTD &= (~(1<<MELBUS_DATA));
          DDRD |= (1<<MELBUS_DATA);
       }
       
  
-     if (PIND & (1<<MELBUS_DATA)){
+     if (PIND & (1<<MELBUS_DATA))
+     {
           melbus_ReceivedByte |= melbus_Bitposition; //set bit nr [melbus_Bitposition] to "1"
      }
-     else {
+     else 
+     {
           melbus_ReceivedByte &=~melbus_Bitposition; //set bit nr [melbus_Bitposition] to "0"
      }
     
   
     //if all the bits in the byte are read: 
-    if (melbus_Bitposition==0x01) {
+    if (melbus_Bitposition==0x01) 
+    {
       
       //Move every lastreadbyte one step down the array to keep track of former bytes 
-      for(int i=11;i>0;i--){
+      for(int i=11;i>0;i--)
+      {
         melbus_LastReadByte[i] = melbus_LastReadByte[i-1];
       }
 
-      if (melbus_OutByte != 0xFF) {
+      if (melbus_OutByte != 0xFF) 
+      {
         melbus_LastReadByte[0] = melbus_OutByte;
         melbus_OutByte = 0xFF;
-      } else {
-      
+      } 
+      else
+      {
          //Insert the newly read byte into first position of array
          melbus_LastReadByte[0] = melbus_ReceivedByte;
       }
       //set bool to true to evaluate the bytes in main loop
       ByteIsRead = true;
 
-       
       //Reset bitcount to first bit in byte
       melbus_Bitposition=0x80;
-    if(melbus_LastReadByte[2] == 0x07 && (melbus_LastReadByte[1] == 0x1A || melbus_LastReadByte[1] == 0x4A) && melbus_LastReadByte[0] == 0xEE)
+      
+      if(melbus_LastReadByte[2] == 0x07 && (melbus_LastReadByte[1] == 0x1A || melbus_LastReadByte[1] == 0x4A) && melbus_LastReadByte[0] == 0xEE)
     {
       InitialSequence_ext = true;
     }
-    else if(melbus_LastReadByte[2] == 0x0 && (melbus_LastReadByte[1] == 0x1C || melbus_LastReadByte[1] == 0x4C) && melbus_LastReadByte[0] == 0xED)
+    
+  else if(melbus_LastReadByte[2] == 0x0 && (melbus_LastReadByte[1] == 0x1C || melbus_LastReadByte[1] == 0x4C) && melbus_LastReadByte[0] == 0xED)
     {
+      
       InitialSequence_ext = true;
     }
-    else if((melbus_LastReadByte[0] == 0xE8 || melbus_LastReadByte[0] == 0xE9) && InitialSequence_ext == true){
+    
+    else if((melbus_LastReadByte[0] == 0xE8 || melbus_LastReadByte[0] == 0xE9) && InitialSequence_ext == true)
+    {
       InitialSequence_ext = false;
       
       //Returning the expected byte to the HU, to confirm that the CD-CHGR is present (0xEE)! see "ID Response"-table here http://volvo.wot.lv/wiki/doku.php?id=melbus
       melbus_OutByte = 0xEE;
     }
+    
     else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x1E || melbus_LastReadByte[1] == 0x4E) && melbus_LastReadByte[0] == 0xEF)
     {
-      //Serial.println("Cart info");
       // CartInfo
       melbus_DiscCnt=6;
     }
+    
     else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x22)
     {
       // Powerdown
@@ -296,64 +237,83 @@ void MELBUS_CLOCK_INTERRUPT() {
           melbus_SendBuffer[1]=0x02; // STOP
           melbus_SendBuffer[8]=0x02; // STOP
     }
+    
     else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x52)
     {
-      // RND
       Serial.println("RND");
     }
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x29)
+    
+    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x29))
     {
-      // FF
       Serial.println("FF");
     }
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x2F)
+    
+    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x2F))
     {
-      // FR
-      Serial.println("FR");
+          Serial.println("Start up");
           melbus_OutByte = 0x00; // respond to start;
           melbus_SendBuffer[1]=0x08; // START
           melbus_SendBuffer[8]=0x08; // START
     }
+    
+    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x26))
+    {
+      Serial.println("FR");
+    }
     else if((melbus_LastReadByte[3] == 0xE8 || melbus_LastReadByte[3] == 0xE9) && (melbus_LastReadByte[2] == 0x1A || melbus_LastReadByte[2] == 0x4A) && melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x01)
     {
-      // D-
       Serial.println("Previous disc");
           melbus_SendBuffer[3]--;
           melbus_SendBuffer[5]=0x01;
     }
+    
     else if((melbus_LastReadByte[3] == 0xE8 || melbus_LastReadByte[3] == 0xE9) && (melbus_LastReadByte[2] == 0x1A || melbus_LastReadByte[2] == 0x4A) && melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x41)
     {
-      // D+
       Serial.println("Next disc");
           melbus_SendBuffer[3]++;
           melbus_SendBuffer[5]=0x01;
     }
+    
     else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0x2D && melbus_LastReadByte[1] == 0x00 && melbus_LastReadByte[0] == 0x01)
     {
-      // T-
       Serial.println("Previous track");
           melbus_SendBuffer[5]--;
     }
+    
     else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0x2D && melbus_LastReadByte[1] == 0x40 && melbus_LastReadByte[0] == 0x01)
     {
-      // T+
       Serial.println("Next track");
-          melbus_SendBuffer[5]++;
+      if(melbus_SendBuffer[5] < 9)
+      {
+         melbus_SendBuffer[5]++;
+      }
+      else
+      {
+         melbus_SendBuffer[5] = 0x01;
+      }
+         
     }
-    else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 ){
+    
+    else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 )
+    {
       // Playinfo
           melbus_SendCnt=9;
-    }     
-    if (melbus_SendCnt) {
+    }  
+       
+    if (melbus_SendCnt) 
+    {
          melbus_OutByte=melbus_SendBuffer[9-melbus_SendCnt];
          melbus_SendCnt--;
-    } else if (melbus_DiscCnt) {
+    } 
+    else if (melbus_DiscCnt) {
          melbus_OutByte=melbus_DiscBuffer[6-melbus_DiscCnt];
          melbus_DiscCnt--;
     }
-    } else {
-      //set bitnumber to address of next bit in byte
-      melbus_Bitposition>>=1;
-    }
-    EIFR |= (1 << INTF1);
+   } 
+   else
+   {
+     //set bitnumber to address of next bit in byte
+     melbus_Bitposition>>=1;
+   }
+   EIFR |= (1 << INTF1);
 }
