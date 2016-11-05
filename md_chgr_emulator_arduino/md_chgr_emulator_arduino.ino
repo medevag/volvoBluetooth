@@ -215,21 +215,21 @@ void MELBUS_CLOCK_INTERRUPT() {
       InitialSequence_ext = true;
     }
     
-    else if((melbus_LastReadByte[0] == 0xE8 || melbus_LastReadByte[0] == 0xE9) && InitialSequence_ext == true)
+    else if((melbus_LastReadByte[0] == 0xD8 || melbus_LastReadByte[0] == 0xD9) && InitialSequence_ext == true)
     {
       InitialSequence_ext = false;
       
       //Returning the expected byte to the HU, to confirm that the CD-CHGR is present (0xEE)! see "ID Response"-table here http://volvo.wot.lv/wiki/doku.php?id=melbus
-      melbus_OutByte = 0xEE;
+      melbus_OutByte = 0xDE;
     }
     
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x1E || melbus_LastReadByte[1] == 0x4E) && melbus_LastReadByte[0] == 0xEF)
+    else if((melbus_LastReadByte[2] == 0xD8 || melbus_LastReadByte[2] == 0xD9) && (melbus_LastReadByte[1] == 0x1E || melbus_LastReadByte[1] == 0x4E) && melbus_LastReadByte[0] == 0xEF)
     {
       // CartInfo
       melbus_DiscCnt=6;
     }
     
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x22)
+    else if((melbus_LastReadByte[2] == 0xD8 || melbus_LastReadByte[2] == 0xD9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x22)
     {
       // Powerdown
       Serial.println("Power down");
@@ -238,17 +238,17 @@ void MELBUS_CLOCK_INTERRUPT() {
           melbus_SendBuffer[8]=0x02; // STOP
     }
     
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x52)
+    else if((melbus_LastReadByte[2] == 0xD8 || melbus_LastReadByte[2] == 0xD9) && (melbus_LastReadByte[1] == 0x19 || melbus_LastReadByte[1] == 0x49) && melbus_LastReadByte[0] == 0x52)
     {
       Serial.println("RND");
     }
     
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x29))
+    else if((melbus_LastReadByte[2] == 0xD8 || melbus_LastReadByte[2] == 0xD9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x29))
     {
       Serial.println("FF");
     }
     
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x2F))
+    else if((melbus_LastReadByte[2] == 0xD8 || melbus_LastReadByte[2] == 0xD9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x2F))
     {
           Serial.println("Start up");
           melbus_OutByte = 0x00; // respond to start;
@@ -256,31 +256,39 @@ void MELBUS_CLOCK_INTERRUPT() {
           melbus_SendBuffer[8]=0x08; // START
     }
     
-    else if((melbus_LastReadByte[2] == 0xE8 || melbus_LastReadByte[2] == 0xE9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x26))
+    else if((melbus_LastReadByte[2] == 0xD8 || melbus_LastReadByte[2] == 0xD9) && (melbus_LastReadByte[1] == 0x19 && melbus_LastReadByte[0] == 0x26))
     {
       Serial.println("FR");
     }
-    else if((melbus_LastReadByte[3] == 0xE8 || melbus_LastReadByte[3] == 0xE9) && (melbus_LastReadByte[2] == 0x1A || melbus_LastReadByte[2] == 0x4A) && melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x01)
+    else if((melbus_LastReadByte[3] == 0xD8 || melbus_LastReadByte[3] == 0xD9) && (melbus_LastReadByte[2] == 0x1A || melbus_LastReadByte[2] == 0x4A) && melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x01)
     {
       Serial.println("Previous disc");
           melbus_SendBuffer[3]--;
           melbus_SendBuffer[5]=0x01;
     }
     
-    else if((melbus_LastReadByte[3] == 0xE8 || melbus_LastReadByte[3] == 0xE9) && (melbus_LastReadByte[2] == 0x1A || melbus_LastReadByte[2] == 0x4A) && melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x41)
+    else if((melbus_LastReadByte[3] == 0xD8 || melbus_LastReadByte[3] == 0xD9) && (melbus_LastReadByte[2] == 0x1A || melbus_LastReadByte[2] == 0x4A) && melbus_LastReadByte[1] == 0x50 && melbus_LastReadByte[0] == 0x41)
     {
       Serial.println("Next disc");
           melbus_SendBuffer[3]++;
           melbus_SendBuffer[5]=0x01;
     }
     
-    else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0x2D && melbus_LastReadByte[1] == 0x00 && melbus_LastReadByte[0] == 0x01)
+    else if((melbus_LastReadByte[4] == 0xD8 || melbus_LastReadByte[4] == 0xD9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0x2D && melbus_LastReadByte[1] == 0x00 && melbus_LastReadByte[0] == 0x01)
     {
       Serial.println("Previous track");
-          melbus_SendBuffer[5]--;
+         
+      if(melbus_SendBuffer[5] > 0)
+      {
+         melbus_SendBuffer[5]--;
+      }
+      else
+      {
+         melbus_SendBuffer[5] = 0x09;
+      }
     }
     
-    else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0x2D && melbus_LastReadByte[1] == 0x40 && melbus_LastReadByte[0] == 0x01)
+    else if((melbus_LastReadByte[4] == 0xD8 || melbus_LastReadByte[4] == 0xD9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0x2D && melbus_LastReadByte[1] == 0x40 && melbus_LastReadByte[0] == 0x01)
     {
       Serial.println("Next track");
       if(melbus_SendBuffer[5] < 9)
@@ -294,7 +302,7 @@ void MELBUS_CLOCK_INTERRUPT() {
          
     }
     
-    else if((melbus_LastReadByte[4] == 0xE8 || melbus_LastReadByte[4] == 0xE9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 )
+    else if((melbus_LastReadByte[4] == 0xD8 || melbus_LastReadByte[4] == 0xD9) && (melbus_LastReadByte[3] == 0x1B || melbus_LastReadByte[3] == 0x4B) && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 )
     {
       // Playinfo
           melbus_SendCnt=9;
