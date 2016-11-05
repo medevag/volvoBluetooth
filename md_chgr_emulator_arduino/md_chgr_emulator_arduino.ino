@@ -90,9 +90,9 @@ Connected = true;
       melbus_Bitposition=7;
     }
     
-    //Check if the HU is asking for current track information (E9 1B E0 01 08 .......) - about once a second
+    //Check if the HU is asking for current track information NO */(E9 1B E0 01 08 .......)*/ 1B E0 01 08 - about once a second
     //The HU is writing out CD ERROR if it wont get a response on this... the AUX works anyway! 
-    else if(melbus_LastReadByte[4] == 0xE9 && melbus_LastReadByte[3] == 0x1B && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 ){
+    else if(/melbus_LastReadByte[3] == 0x1B && melbus_LastReadByte[2] == 0xE0  && melbus_LastReadByte[1] == 0x01 && melbus_LastReadByte[0] == 0x08 ){
        Connected = true;
        Serial.println("\nTrack info requested!");
        //SendByteToMelbus(0xF7);
@@ -177,7 +177,7 @@ void SendByteToMelbus(uint8_t byteToSend){
 
 //Global external interrupt that triggers when clock pin goes high after it has been low for a short time => time to read datapin
 void MELBUS_CLOCK_INTERRUPT() {
-  
+
     //Read status of Datapin and set status of current bit in recv_byte
     if (digitalRead(MELBUS_DATA)==HIGH){
       melbus_ReceivedByte |= (1<<melbus_Bitposition); //set bit nr [melbus_Bitposition] to "1"
